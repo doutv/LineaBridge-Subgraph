@@ -9,7 +9,7 @@ import {
 import { Address, BigInt } from "@graphprotocol/graph-ts"
 import { BridgingFinalized } from "../generated/schema"
 import { BridgingFinalized as BridgingFinalizedEvent } from "../generated/Contract/Contract"
-import { handleBridgingFinalized } from "../src/contract"
+import { handleBridgingFinalized } from "../src/ERC20Bridge"
 import { createBridgingFinalizedEvent } from "./contract-utils"
 
 // Tests structure (matchstick-as >=0.5.0)

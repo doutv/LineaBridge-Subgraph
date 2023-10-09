@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: ERC20Bridge
@@ -19,10 +19,10 @@ dataSources:
         - User
       abis:
         - name: ERC20Bridge
-          file: ./abis/ERC20Bridge.json
+          file: ERC20Bridge\abis\ERC20Bridge.json
       eventHandlers:
         - event: BridgingFinalized(indexed address,indexed address,indexed uint256,address)
           handler: handleBridgingFinalized
         - event: BridgingInitiated(indexed address,address,indexed address,indexed uint256)
           handler: handleBridgingInitiated
-      file: ./src/ERC20Bridge.ts
+      file: ERC20Bridge\ERC20Bridge.wasm
