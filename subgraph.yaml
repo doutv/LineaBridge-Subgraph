@@ -1,0 +1,66 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Contract
+    network: mainnet
+    source:
+      address: "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      abi: Contract
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - BridgingFinalized
+        - BridgingInitiated
+        - CustomContractSet
+        - DeploymentConfirmed
+        - Initialized
+        - MessageServiceUpdated
+        - NewToken
+        - NewTokenDeployed
+        - OwnershipTransferStarted
+        - OwnershipTransferred
+        - Paused
+        - RemoteTokenBridgeSet
+        - TokenDeployed
+        - TokenReserved
+        - Unpaused
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: BridgingFinalized(indexed address,indexed address,indexed uint256,address)
+          handler: handleBridgingFinalized
+        - event: BridgingInitiated(indexed address,address,indexed address,indexed uint256)
+          handler: handleBridgingInitiated
+        - event: CustomContractSet(indexed address,indexed address,indexed address)
+          handler: handleCustomContractSet
+        - event: DeploymentConfirmed(address[],indexed address)
+          handler: handleDeploymentConfirmed
+        - event: Initialized(uint8)
+          handler: handleInitialized
+        - event: MessageServiceUpdated(indexed address,indexed address,indexed address)
+          handler: handleMessageServiceUpdated
+        - event: NewToken(indexed address)
+          handler: handleNewToken
+        - event: NewTokenDeployed(indexed address,indexed address)
+          handler: handleNewTokenDeployed
+        - event: OwnershipTransferStarted(indexed address,indexed address)
+          handler: handleOwnershipTransferStarted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: RemoteTokenBridgeSet(indexed address,indexed address)
+          handler: handleRemoteTokenBridgeSet
+        - event: TokenDeployed(indexed address)
+          handler: handleTokenDeployed
+        - event: TokenReserved(indexed address)
+          handler: handleTokenReserved
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/contract.ts
