@@ -13,7 +13,7 @@ export function handleBridgingInitiated(event: BridgingInitiatedEvent): void {
 
   inToken.sender = event.params.sender.toHexString();
   inToken.recipient = event.params.recipient.toHexString();
-  inToken.address = event.params.token.toHexString();
+  inToken.address = event.params.token;
   inToken.amount = event.params.amount;
 
   inToken.blockNumber = event.block.number;
@@ -39,7 +39,7 @@ export function handleBridgingFinalized(event: BridgingFinalizedEvent): void {
   let outToken = new OutToken(event.transaction.hash.toString());
 
   outToken.recipient = event.params.recipient.toHexString();
-  outToken.address = event.params.nativeToken.toHexString();
+  outToken.address = event.params.nativeToken;
   outToken.amount = event.params.amount;
 
   outToken.blockNumber = event.block.number;

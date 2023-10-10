@@ -50,17 +50,17 @@ export class InToken extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get address(): string {
+  get address(): Bytes {
     let value = this.get("address");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toString();
+      return value.toBytes();
     }
   }
 
-  set address(value: string) {
-    this.set("address", Value.fromString(value));
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
   }
 
   get sender(): string {
@@ -181,17 +181,17 @@ export class OutToken extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get address(): string {
+  get address(): Bytes {
     let value = this.get("address");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toString();
+      return value.toBytes();
     }
   }
 
-  set address(value: string) {
-    this.set("address", Value.fromString(value));
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
   }
 
   get recipient(): string {
@@ -299,29 +299,37 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get InTokens(): Array<string> {
+  get InTokens(): Array<string> | null {
     let value = this.get("InTokens");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toStringArray();
     }
   }
 
-  set InTokens(value: Array<string>) {
-    this.set("InTokens", Value.fromStringArray(value));
+  set InTokens(value: Array<string> | null) {
+    if (!value) {
+      this.unset("InTokens");
+    } else {
+      this.set("InTokens", Value.fromStringArray(<Array<string>>value));
+    }
   }
 
-  get OutTokens(): Array<string> {
+  get OutTokens(): Array<string> | null {
     let value = this.get("OutTokens");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toStringArray();
     }
   }
 
-  set OutTokens(value: Array<string>) {
-    this.set("OutTokens", Value.fromStringArray(value));
+  set OutTokens(value: Array<string> | null) {
+    if (!value) {
+      this.unset("OutTokens");
+    } else {
+      this.set("OutTokens", Value.fromStringArray(<Array<string>>value));
+    }
   }
 }

@@ -1,6 +1,6 @@
 type InToken @entity {
   id: ID!
-  address: String!
+  address: Bytes!
   sender: User!
   recipient: User!
   amount: BigInt!
@@ -11,7 +11,7 @@ type InToken @entity {
 
 type OutToken @entity {
   id: ID!
-  address: String!
+  address: Bytes!
   recipient: User!
   amount: BigInt!
   blockNumber: BigInt!
@@ -21,6 +21,6 @@ type OutToken @entity {
 
 type User @entity {
   id: ID!
-  InTokens: [InToken!]! @deriveFrom(field: "recipient")
-  OutTokens: [OutToken!]! @deriveFrom(field: "recipient")  
+  InTokens: [InToken!] @deriveFrom(field: "recipient")
+  OutTokens: [OutToken!] @deriveFrom(field: "recipient")  
 }
