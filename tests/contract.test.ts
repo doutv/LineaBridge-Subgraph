@@ -7,10 +7,9 @@ import {
   afterAll
 } from "matchstick-as/assembly/index"
 import { Address, BigInt } from "@graphprotocol/graph-ts"
-import { BridgingFinalized } from "../generated/schema"
-import { BridgingFinalized as BridgingFinalizedEvent } from "../generated/Contract/Contract"
-import { handleBridgingFinalized } from "../src/ERC20Bridge"
-import { createBridgingFinalizedEvent } from "./contract-utils"
+import { InToken, OutToken, User } from "../generated/schema"
+import { handleBridgingFinalized, handleBridgingInitiated } from "../src/ERC20Bridge"
+import { createBridgingFinalizedEvent, createBridgingInitiatedEvent } from "./contract-utils"
 
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
@@ -18,14 +17,14 @@ import { createBridgingFinalizedEvent } from "./contract-utils"
 describe("Describe entity assertions", () => {
   beforeAll(() => {
     let nativeToken = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
+      "0x0000000000000000000000000000000000000002"
     )
     let bridgedToken = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
+      "0x0000000000000000000000000000000000000000"
     )
-    let amount = BigInt.fromI32(234)
+    let amount = BigInt.fromI32(1234)
     let recipient = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
+      "0x5100000000000000000000000000000000000000"
     )
     let newBridgingFinalizedEvent = createBridgingFinalizedEvent(
       nativeToken,
@@ -44,7 +43,8 @@ describe("Describe entity assertions", () => {
   // https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
 
   test("BridgingFinalized created and stored", () => {
-    assert.entityCount("BridgingFinalized", 1)
+    assert.entityCount("OutToken", 1)
+    assert.entityCount("User", 1)
 
     // 0xa16081f360e3847006db660bae1c6d1b2e17ec2a is the default address used in newMockEvent() function
     assert.fieldEquals(
