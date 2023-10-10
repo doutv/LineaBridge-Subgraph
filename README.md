@@ -1,4 +1,4 @@
-# LineaBridge Bridge Subgraph
+# Linea Bridge Subgraph
 Index ERC20 in & out transactions on the [Linea Bridge](https://bridge.linea.build/)
 
 ERC20Bridge
