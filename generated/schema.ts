@@ -420,8 +420,8 @@ export class User extends Entity {
     }
   }
 
-  get withdrawDeposit(): Array<string> | null {
-    let value = this.get("withdrawDeposit");
+  get withdraw(): Array<string> | null {
+    let value = this.get("withdraw");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -429,11 +429,11 @@ export class User extends Entity {
     }
   }
 
-  set withdrawDeposit(value: Array<string> | null) {
+  set withdraw(value: Array<string> | null) {
     if (!value) {
-      this.unset("withdrawDeposit");
+      this.unset("withdraw");
     } else {
-      this.set("withdrawDeposit", Value.fromStringArray(<Array<string>>value));
+      this.set("withdraw", Value.fromStringArray(<Array<string>>value));
     }
   }
 }
