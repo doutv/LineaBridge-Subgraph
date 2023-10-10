@@ -1,57 +1,77 @@
+import { Address } from "@graphprotocol/graph-ts";
 import {
   BridgingFinalized as BridgingFinalizedEvent,
   BridgingInitiated as BridgingInitiatedEvent,
 } from "../generated/ERC20Bridge/ERC20Bridge"
+import { ERC20 } from "../generated/ERC20Bridge/ERC20"
 import {
-  InToken,
-  OutToken,
+  Deposit,
+  Token,
   User,
+  Withdraw,
 } from "../generated/schema"
 
+function getOrCreateUser(address: Address): User {
+  let user = User.load(address.toHexString());
+  if (!user) {
+    user = new User(address.toHexString());
+    user.save();
+  }
+  return user;
+}
+
+function getOrCreateToken(address: Address): Token {
+  let token = Token.load(address.toHexString());
+  if (token != null) {
+    return token;
+  }
+
+  token = new Token(address.toHexString());
+  // fetch data doing one time contract calls
+  let tokenInstance = ERC20.bind(address);
+  let tryName = tokenInstance.try_name();
+  if (!tryName.reverted) {
+    token.name = tryName.value;
+  }
+  let trySymbol = tokenInstance.try_symbol();
+  if (!trySymbol.reverted) {
+    token.symbol = trySymbol.value;
+  }
+  let tryDecimals = tokenInstance.try_decimals();
+  if (!tryDecimals.reverted) {
+    token.decimals = tryDecimals.value;
+  }
+  token.save();
+
+  return token;
+}
+
 export function handleBridgingInitiated(event: BridgingInitiatedEvent): void {
-  let inToken = new InToken(event.transaction.hash.toString());
+  let depositId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let deposit = new Deposit(depositId);
 
-  inToken.sender = event.params.sender.toHexString();
-  inToken.recipient = event.params.recipient.toHexString();
-  inToken.address = event.params.token;
-  inToken.amount = event.params.amount;
+  deposit.sender = getOrCreateUser(event.params.sender).id;
+  deposit.receiver =  getOrCreateUser(event.params.recipient).id;
+  deposit.l1Token = getOrCreateToken(event.params.token).id;
+  deposit.tokenAmount = event.params.amount;
 
-  inToken.blockNumber = event.block.number;
-  inToken.blockTimestamp = event.block.timestamp;
-  inToken.transactionHash = event.transaction.hash;
-
-  inToken.save();
-
-  let recipient = User.load(event.params.recipient.toHexString());
-  if (!recipient) {
-    recipient = new User(event.params.recipient.toHexString());
-    recipient.save()
-  }
-
-  let sender = User.load(event.params.sender.toHexString());
-  if (!sender) {
-    sender = new User(event.params.sender.toHexString());
-    sender.save()
-  }
+  deposit.blockTimestamp = event.block.timestamp;
+  deposit.transactionHash = event.transaction.hash.toHexString();
+  deposit.blockNumber = event.block.number; 
+  deposit.save();
 }
 
 export function handleBridgingFinalized(event: BridgingFinalizedEvent): void {
-  let outToken = new OutToken(event.transaction.hash.toString());
+  let withdrawId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let withdraw = new Withdraw(withdrawId);
 
-  outToken.recipient = event.params.recipient.toHexString();
-  outToken.address = event.params.nativeToken;
-  outToken.amount = event.params.amount;
+  withdraw.withdrawer = getOrCreateUser(event.params.recipient).id;
+  withdraw.l1Token = getOrCreateToken(event.params.nativeToken).id;
+  withdraw.tokenAmount = event.params.amount;
 
-  outToken.blockNumber = event.block.number;
-  outToken.blockTimestamp = event.block.timestamp;
-  outToken.transactionHash = event.transaction.hash;
-
-  outToken.save();
-
-  let recipient = User.load(event.params.recipient.toHexString());
-  if (!recipient) {
-    recipient = new User(event.params.recipient.toHexString());
-    recipient.save()
-  }
+  withdraw.blockTimestamp = event.block.timestamp;
+  withdraw.transactionHash = event.transaction.hash.toHexString();
+  withdraw.blockNumber = event.block.number;
+  withdraw.save();
 }
 

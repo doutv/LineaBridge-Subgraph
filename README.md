@@ -16,5 +16,5 @@ yarn test
 yarn build
 
 graph auth --studio <deploy_key>
-
+graph deploy --studio lineabridge
 ```

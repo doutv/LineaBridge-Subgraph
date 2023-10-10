@@ -1,26 +1,55 @@
-type InToken @entity {
+type Deposit @entity(immutable: true) {
+  "txHash-txIndex"
   id: ID!
-  address: Bytes!
-  sender: User!
-  recipient: User!
-  amount: BigInt!
-  blockNumber: BigInt!
+  "account that deposited funds on L1, original address"
+  sender: User! # address
+  "L2 account"
+  receiver: User! # address
+  "token being deposited on L1"
+  l1Token: Token!
+  "amount of token being deposited on L1"
+  tokenAmount: BigInt!
+
+  "L1 block timestamp"
   blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  "L1 deposit tx"
+  transactionHash: String!
+  "L1 block in which deposit is made"
+  blockNumber: BigInt!
 }
 
-type OutToken @entity {
+type Withdraw @entity(immutable: true) {
+  "txHash-txIndex"
   id: ID!
-  address: Bytes!
-  recipient: User!
-  amount: BigInt!
-  blockNumber: BigInt!
+  "L1 account"
+  withdrawer: User! # address
+  "token being withdrawn on L1"
+  l1Token: Token!
+  "amount of token being withdrawn on L1"
+  tokenAmount: BigInt!
+
+  "L1 block timestamp"
   blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  "L1 withdraw tx"
+  transactionHash: String!
+  "L1 block in which withdraw is made"
+  blockNumber: BigInt!
+}
+
+type Token @entity(immutable: true) {
+  "L1 token address"
+  id: ID!
+  "token name"
+  name: String
+  "token symbol"
+  symbol: String
+  "number of decimals"
+  decimals: Int
 }
 
 type User @entity {
   id: ID!
-  InTokens: [InToken!] @deriveFrom(field: "recipient")
-  OutTokens: [OutToken!] @deriveFrom(field: "recipient")  
+  sendDeposit: [Deposit!] @deriveFrom(field: "sender")
+  receiveDeposit: [Deposit!] @deriveFrom(field: "receiver")
+  withdrawDeposit: [Withdraw!] @deriveFrom(field: "withdrawer")
 }
