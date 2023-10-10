@@ -1,5 +1,5 @@
 # LineaBridge Bridge Subgraph
-Index ERC20 in & out transactions on the LineaBridge Bridge
+Index ERC20 in & out transactions on the [Linea Bridge](https://bridge.linea.build/)
 
 ERC20Bridge
 - Contract used to bridge ERC20 tokens. This contract can store any token.
