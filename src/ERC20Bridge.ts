@@ -15,6 +15,7 @@ function getOrCreateUser(address: Address): User {
   let user = User.load(address.toHexString());
   if (!user) {
     user = new User(address.toHexString());
+    user.transactionCount = 0;
     user.save();
   }
   return user;
@@ -54,8 +55,12 @@ export function handleBridgingInitiated(event: BridgingInitiatedEvent): void {
   let deposit = new Deposit(depositId);
 
   let l1Token = getOrCreateToken(event.params.token);
+  let user = getOrCreateUser(event.params.sender)
 
-  deposit.sender = getOrCreateUser(event.params.sender).id;
+  user.transactionCount += 1;
+  user.save();
+
+  deposit.sender = user.id;
   deposit.receiver =  getOrCreateUser(event.params.recipient).id;
   deposit.l1Token = l1Token.id;
   deposit.tokenAmount = event.params.amount;
@@ -74,8 +79,12 @@ export function handleBridgingFinalized(event: BridgingFinalizedEvent): void {
   let withdraw = new Withdraw(withdrawId);
 
   let l1Token = getOrCreateToken(event.params.nativeToken);
+  let user = getOrCreateUser(event.params.recipient);
 
-  withdraw.withdrawer = getOrCreateUser(event.params.recipient).id;
+  user.transactionCount += 1;
+  user.save();
+
+  withdraw.withdrawer = user.id;
   withdraw.l1Token = l1Token.id;
   withdraw.tokenAmount = event.params.amount;
 
@@ -87,4 +96,3 @@ export function handleBridgingFinalized(event: BridgingFinalizedEvent): void {
   withdraw.blockNumber = event.block.number;
   withdraw.save();
 }
-

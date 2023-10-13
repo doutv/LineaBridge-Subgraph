@@ -462,4 +462,17 @@ export class User extends Entity {
       this.set("withdraw", Value.fromStringArray(<Array<string>>value));
     }
   }
+
+  get transactionCount(): i32 {
+    let value = this.get("transactionCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set transactionCount(value: i32) {
+    this.set("transactionCount", Value.fromI32(value));
+  }
 }

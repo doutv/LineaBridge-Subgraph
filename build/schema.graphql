@@ -57,4 +57,5 @@ type User @entity {
   sendDeposit: [Deposit!] @deriveFrom(field: "sender")
   receiveDeposit: [Deposit!] @deriveFrom(field: "receiver")
   withdraw: [Withdraw!] @deriveFrom(field: "withdrawer")
+  transactionCount: Int!
 }
