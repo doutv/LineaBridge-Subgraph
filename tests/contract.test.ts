@@ -11,27 +11,31 @@ import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts"
 import { Token, Deposit, User } from "../generated/schema"
 import { handleBridgingFinalized, handleBridgingInitiated } from "../src/ERC20Bridge"
 import { createBridgingFinalizedEvent, createBridgingInitiatedEvent } from "./contract-utils"
+import { log } from "matchstick-as/assembly/log";
+
 
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
 
-function createMockErc20(address: Address): Address {
-  // create mock function for ERC20 contract
-  // name
-  // symbol
-  // decimals
+function createMockErc20(address: Address, name: string, symbol: string, decimals: number): Address {
+  // create mock functions for ERC20 contract
   createMockedFunction(address, 'name', 'name():(string)')
-    .returns([ethereum.Value.fromString('USDT stable coin')])
+    .returns([ethereum.Value.fromString(name)])
   createMockedFunction(address, 'symbol', 'symbol():(string)')
-    .returns([ethereum.Value.fromString('USDT')])
+    .returns([ethereum.Value.fromString(symbol)])
   createMockedFunction(address, 'decimals', 'decimals():(uint8)')
-    .returns([ethereum.Value.fromI32(18)])
+    .returns([ethereum.Value.fromI32(decimals)])
 
   return address
 }
 
 test("BridgingFinalized created and stored", () => {
-  let nativeToken = createMockErc20(Address.fromString("0xf000000000000000000000000000000000000000"))
+  let nativeToken = createMockErc20(
+    Address.fromString("0xdac17f958d2ee523a2206206994597c13d831ec7"),
+    "Tether USD",
+    "USDT",
+    6,
+  )
 
   let bridgedToken = Address.fromString(
     "0x0000000000000000000000000000000000000000"
@@ -47,48 +51,63 @@ test("BridgingFinalized created and stored", () => {
     recipient
   )
   handleBridgingFinalized(event)
-  let eventId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let withdrawId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
 
   // assert.entityCount("Withdraw", 1)
   // assert.entityCount("User", 1)
   // assert.entityCount("Token", 1)
 
+  // Withdraw
   assert.fieldEquals(
     "Withdraw",
-    eventId,
+    withdrawId,
     "l1Token",
     nativeToken.toHexString(),
   )
   assert.fieldEquals(
     "Withdraw",
-    eventId,
+    withdrawId,
     "withdrawer",
     recipient.toHexString(),
   )
   assert.fieldEquals(
     "Withdraw",
-    eventId,
+    withdrawId,
     "tokenAmount",
     amount.toString(),
   )
 
   assert.fieldEquals(
     "Withdraw",
-    eventId,
+    withdrawId,
     "blockNumber",
     event.block.number.toString(),
   )
   assert.fieldEquals(
     "Withdraw",
-    eventId,
+    withdrawId,
     "blockTimestamp",
     event.block.timestamp.toString(),
   )
   assert.fieldEquals(
     "Withdraw",
-    eventId,
+    withdrawId,
     "transactionHash",
     event.transaction.hash.toHexString(),
+  )
+
+  // User
+  let user = User.load(recipient.toHexString())!
+  assert.fieldEquals(
+    "User",
+    recipient.toHexString(),
+    "transactionCount",
+    "1",
+  )
+  log.debug("user withdraw", [user.withdraw![0].toString()]);
+  assert.stringEquals(
+    withdrawId,
+    user.withdraw![0].toString(),
   )
 
   // More assert options:
