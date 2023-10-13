@@ -14,9 +14,10 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - InToken
-        - OutToken
+        - Deposit
+        - Withdraw
         - User
+        - Token
       abis:
         - name: ERC20Bridge
           file: ERC20Bridge/abis/ERC20Bridge.json

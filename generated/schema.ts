@@ -345,6 +345,32 @@ export class Token extends Entity {
   set decimals(value: i32) {
     this.set("decimals", Value.fromI32(value));
   }
+
+  get totalDepositAmount(): BigInt {
+    let value = this.get("totalDepositAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalDepositAmount(value: BigInt) {
+    this.set("totalDepositAmount", Value.fromBigInt(value));
+  }
+
+  get totalWithdrawAmount(): BigInt {
+    let value = this.get("totalWithdrawAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalWithdrawAmount(value: BigInt) {
+    this.set("totalWithdrawAmount", Value.fromBigInt(value));
+  }
 }
 
 export class User extends Entity {

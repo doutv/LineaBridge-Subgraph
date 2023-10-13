@@ -36,7 +36,7 @@ type Withdraw @entity(immutable: true) {
   blockNumber: BigInt!
 }
 
-type Token @entity(immutable: true) {
+type Token @entity {
   "L1 token address"
   id: ID!
   "token name"
@@ -45,6 +45,11 @@ type Token @entity(immutable: true) {
   symbol: String
   "number of decimals"
   decimals: Int
+
+  "total amount of token deposited on L1"
+  totalDepositAmount: BigInt!
+  "total amount of token withdrawn on L1"
+  totalWithdrawAmount: BigInt!
 }
 
 type User @entity {
