@@ -16,6 +16,9 @@ function getOrCreateUser(address: Address): User {
   if (!user) {
     user = new User(address.toHexString());
     user.transactionCount = 0;
+    user.withdraw = [];
+    user.sendDeposit = [];
+    user.receiveDeposit = [];
     user.save();
   }
   return user;
@@ -55,13 +58,11 @@ export function handleBridgingInitiated(event: BridgingInitiatedEvent): void {
   let deposit = new Deposit(depositId);
 
   let l1Token = getOrCreateToken(event.params.token);
-  let user = getOrCreateUser(event.params.sender)
+  let sender = getOrCreateUser(event.params.sender);
+  let receiver = getOrCreateUser(event.params.recipient);
 
-  user.transactionCount += 1;
-  user.save();
-
-  deposit.sender = user.id;
-  deposit.receiver =  getOrCreateUser(event.params.recipient).id;
+  deposit.sender = sender.id;
+  deposit.receiver = receiver.id;
   deposit.l1Token = l1Token.id;
   deposit.tokenAmount = event.params.amount;
 
@@ -72,6 +73,13 @@ export function handleBridgingInitiated(event: BridgingInitiatedEvent): void {
   deposit.transactionHash = event.transaction.hash.toHexString();
   deposit.blockNumber = event.block.number;
   deposit.save();
+
+  sender.transactionCount += 1;
+  sender.sendDeposit = sender.sendDeposit.concat([deposit.id]);
+  sender.save();
+
+  receiver.receiveDeposit = receiver.receiveDeposit.concat([deposit.id]);
+  receiver.save();
 }
 
 export function handleBridgingFinalized(event: BridgingFinalizedEvent): void {
@@ -80,9 +88,6 @@ export function handleBridgingFinalized(event: BridgingFinalizedEvent): void {
 
   let l1Token = getOrCreateToken(event.params.nativeToken);
   let user = getOrCreateUser(event.params.recipient);
-
-  user.transactionCount += 1;
-  user.save();
 
   withdraw.withdrawer = user.id;
   withdraw.l1Token = l1Token.id;
@@ -95,4 +100,8 @@ export function handleBridgingFinalized(event: BridgingFinalizedEvent): void {
   withdraw.transactionHash = event.transaction.hash.toHexString();
   withdraw.blockNumber = event.block.number;
   withdraw.save();
+
+  user.transactionCount += 1;
+  user.withdraw = user.withdraw.concat([withdraw.id]);
+  user.save();
 }

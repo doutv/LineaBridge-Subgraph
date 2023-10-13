@@ -54,8 +54,8 @@ type Token @entity {
 
 type User @entity {
   id: ID!
-  sendDeposit: [Deposit!] @deriveFrom(field: "sender")
-  receiveDeposit: [Deposit!] @deriveFrom(field: "receiver")
-  withdraw: [Withdraw!] @deriveFrom(field: "withdrawer")
+  sendDeposit: [Deposit!]!
+  receiveDeposit: [Deposit!]!
+  withdraw: [Withdraw!]!
   transactionCount: Int!
 }

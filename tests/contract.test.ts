@@ -17,7 +17,7 @@ import { log } from "matchstick-as/assembly/log";
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
 
-function createMockErc20(address: Address, name: string, symbol: string, decimals: number): Address {
+function createMockErc20(address: Address, name: string, symbol: string, decimals: u8): Address {
   // create mock functions for ERC20 contract
   createMockedFunction(address, 'name', 'name():(string)')
     .returns([ethereum.Value.fromString(name)])
@@ -30,11 +30,14 @@ function createMockErc20(address: Address, name: string, symbol: string, decimal
 }
 
 test("BridgingFinalized created and stored", () => {
+  let tokenName = "Tether USD"
+  let tokenSymbol = "USDT"
+  let tokenDecimals = 6
   let nativeToken = createMockErc20(
     Address.fromString("0xdac17f958d2ee523a2206206994597c13d831ec7"),
-    "Tether USD",
-    "USDT",
-    6,
+    tokenName,
+    tokenSymbol,
+    tokenDecimals as u8,
   )
 
   let bridgedToken = Address.fromString(
@@ -52,10 +55,6 @@ test("BridgingFinalized created and stored", () => {
   )
   handleBridgingFinalized(event)
   let withdrawId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-
-  // assert.entityCount("Withdraw", 1)
-  // assert.entityCount("User", 1)
-  // assert.entityCount("Token", 1)
 
   // Withdraw
   assert.fieldEquals(
@@ -98,31 +97,40 @@ test("BridgingFinalized created and stored", () => {
 
   // User
   let user = User.load(recipient.toHexString())!
-  assert.fieldEquals(
-    "User",
-    recipient.toHexString(),
-    "transactionCount",
-    "1",
-  )
-  log.debug("user withdraw", [user.withdraw![0].toString()]);
+  assert.i32Equals(1, user.transactionCount);
   assert.stringEquals(
     withdrawId,
-    user.withdraw![0].toString(),
+    user.withdraw[0],
   )
 
+  // Token
+  let token = Token.load(nativeToken.toHexString())!
+  assert.stringEquals(tokenName, token.name!)
+  assert.stringEquals(tokenSymbol, token.symbol!)
+  assert.i32Equals(tokenDecimals, token.decimals!)
+  assert.bigIntEquals(BigInt.fromI32(0), token.totalDepositAmount)
+  assert.bigIntEquals(amount, token.totalWithdrawAmount)
+  
   // More assert options:
   // https://thegraph.com/docs/en/developer/matchstick/#asserts
 })
 
 test("BridgingInitiated created and stored", () => {
-  let token = createMockErc20(Address.fromString("0xff00000000000000000000000000000000000000"))
-
+  let tokenName = "DAI Stablecoin"
+  let tokenSymbol = "DAI"
+  let tokenDecimals = 18
+  let token = createMockErc20(
+    Address.fromString("0x6b175474e89094c44da98b954eedeac495271d0f"),
+    tokenName,
+    tokenSymbol,
+    tokenDecimals as u8,
+  )
   let amount = BigInt.fromI32(1234)
   let sender = Address.fromString(
-    "0x9000000000000000000000000000000000000000"
+    "0x9900000000000000000000000000000000000000"
   )
   let recipient = Address.fromString(
-    "0x5000000000000000000000000000000000000000"
+    "0x5500000000000000000000000000000000000000"
   )
   let event = createBridgingInitiatedEvent(
     sender,
@@ -132,10 +140,6 @@ test("BridgingInitiated created and stored", () => {
   )
   handleBridgingInitiated(event)
   let eventId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-
-  // assert.entityCount("Deposit", 1)
-  // assert.entityCount("User", 2)
-  // assert.entityCount("Token", 1)
 
   assert.fieldEquals(
     "Deposit",
@@ -181,6 +185,26 @@ test("BridgingInitiated created and stored", () => {
     event.transaction.hash.toHexString(),
   )
 
+  // User
+  let user = User.load(sender.toHexString())!
+  assert.i32Equals(1, user.transactionCount);
+  assert.stringEquals(
+    eventId,
+    user.sendDeposit[0],
+  )
+  let receiver = User.load(recipient.toHexString())!
+  assert.i32Equals(0, receiver.transactionCount);
+  assert.stringEquals(
+    eventId,
+    receiver.receiveDeposit[0],
+  )
+
+  // Token
+  let tokenEntity = Token.load(token.toHexString())!
+  assert.stringEquals(tokenName, tokenEntity.name!)
+  assert.stringEquals(tokenSymbol, tokenEntity.symbol!)
+  assert.i32Equals(tokenDecimals, tokenEntity.decimals!)
+  
   // More assert options:
   // https://thegraph.com/docs/en/developer/matchstick/#asserts
 })

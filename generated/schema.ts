@@ -412,55 +412,43 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get sendDeposit(): Array<string> | null {
+  get sendDeposit(): Array<string> {
     let value = this.get("sendDeposit");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toStringArray();
     }
   }
 
-  set sendDeposit(value: Array<string> | null) {
-    if (!value) {
-      this.unset("sendDeposit");
-    } else {
-      this.set("sendDeposit", Value.fromStringArray(<Array<string>>value));
-    }
+  set sendDeposit(value: Array<string>) {
+    this.set("sendDeposit", Value.fromStringArray(value));
   }
 
-  get receiveDeposit(): Array<string> | null {
+  get receiveDeposit(): Array<string> {
     let value = this.get("receiveDeposit");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toStringArray();
     }
   }
 
-  set receiveDeposit(value: Array<string> | null) {
-    if (!value) {
-      this.unset("receiveDeposit");
-    } else {
-      this.set("receiveDeposit", Value.fromStringArray(<Array<string>>value));
-    }
+  set receiveDeposit(value: Array<string>) {
+    this.set("receiveDeposit", Value.fromStringArray(value));
   }
 
-  get withdraw(): Array<string> | null {
+  get withdraw(): Array<string> {
     let value = this.get("withdraw");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toStringArray();
     }
   }
 
-  set withdraw(value: Array<string> | null) {
-    if (!value) {
-      this.unset("withdraw");
-    } else {
-      this.set("withdraw", Value.fromStringArray(<Array<string>>value));
-    }
+  set withdraw(value: Array<string>) {
+    this.set("withdraw", Value.fromStringArray(value));
   }
 
   get transactionCount(): i32 {
